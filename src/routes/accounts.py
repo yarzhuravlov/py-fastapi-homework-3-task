@@ -21,14 +21,13 @@ from exceptions import TokenExpiredError
 from schemas import (
     UserRegistrationRequestSchema,
     UserRegistrationResponseSchema,
-)
-from schemas.accounts import (
     UserActivationRequestSchema,
-    UserBase,
     UserResetPasswordCompleteRequestSchema,
     UserLoginRequestSchema,
     RefreshAccessTokenRequest,
+    UserBase,
 )
+
 from security.interfaces import JWTAuthManagerInterface
 from security.passwords import hash_password
 from security.utils import generate_secure_token
@@ -72,13 +71,13 @@ async def register_user(
         await db.commit()
 
     except Exception:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred during user creation.",
         )
 
-    return user
+    return UserRegistrationResponseSchema(id=user.id, email=user.email)
 
 
 @router.post("/activate/")
